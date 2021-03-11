@@ -1,7 +1,8 @@
 from flask import Flask
+import datetime
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.engine import Engine
-from sqlalchemy import event
+from sqlalchemy import event, DateTime
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 
@@ -19,7 +20,7 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 class Message(db.Model):
     __tablename__ = 'messages'
     serverID = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, primary_key=True, default = datetime.datetime.utcnow)
     message = db.Column(db.String, nullable = False)
     user = db.Column(db.String, nullable = False)
 
