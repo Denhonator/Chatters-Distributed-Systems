@@ -7,6 +7,17 @@ import random
 
 clientCount = 0
 
+#TODO: UDP listener thread to receive messages from other servers at all times
+#These must then be forwarded to clients
+#TODO: Forward received messages to clients either where they are received
+#Or in a separate thread if needed
+#Main thread: Listens for new connections
+#Per client thread: Listens for client messages
+#UDP listen thread: Listens for messages from other servers
+
+#TODO: Send old messages to new clients/servers (that they might have missed)
+#as they connect for synchronization, but maybe not necessary?
+
 def on_new_client(clientsocket,addr, serverAddr):
     global clientCount
     while True:
@@ -61,7 +72,7 @@ def selectServer(numClients, addr):
 def getServerList():
     return Server.Query.all()
 
-
+# Must know own address
 def sendMessageToServers(message, ownServer):
     #fake multicast
     for server in getServerList()

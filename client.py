@@ -41,7 +41,7 @@ try:
         msgParts = reply.split(":")
         address = (msgParts[1],int(msgParts[2]))
         print("Requested server change")
-
+        #TODO: Automatically attempt connection to suggested server
     else:
         print("Server was not OK with the message")
 
