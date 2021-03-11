@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 import socket
 import _thread
 from models import db, Server, Message
@@ -37,8 +36,9 @@ port = 7757
 
 addrString = host + ":" + str(port)
 
-
 print("Server started!")
+
+
 
 s.bind((host, port))
 s.listen(5)
@@ -58,6 +58,17 @@ def selectServer(numClients, addr):
     else:
         return addr
 
-
 def getServerList():
     return Server.Query.all()
+
+
+def sendMessageToServers(message, ownServer):
+    #fake multicast
+    for server in getServerList()
+        if server.address != ownServer:
+            adr = server.address.split(":")
+            ip = adr[0]
+            #UDP Port = Port + 1
+            port = str(int(adr[1]) +1)
+            s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+            s.sendto(message.encode('utf-8'), ip, port)
