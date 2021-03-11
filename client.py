@@ -1,4 +1,4 @@
-#!/usr/bin/python                                                                                                                                                                     
+#!/usr/bin/python
 
 import socket
 import time
@@ -36,9 +36,15 @@ try:
             sendmsg = "MSG:" + input("> ")
             s.send(sendmsg.encode('utf-8'))
             time.sleep(0.5)
-            
+    elif "CHANGE" in reply:
+        #"CHANGE:ADDRESS:PORT"
+        msgParts = reply.split(":")
+        address = (msgParts[1],int(msgParts[2]))
+        print("Requested server change")
+
+    else:
         print("Server was not OK with the message")
-        
+
 except Exception as e:
     print(e)
     print("Failed to connect to "+str(address))
