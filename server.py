@@ -12,7 +12,7 @@ def on_new_client(clientsocket,addr):
             break
         print(str(addr) + " >> " + msg)
         if msg[:3] == "MSG":
-            msg = b"SRV:MSG received"
+            msg = b"SRV:MSG received OK"
         else:
             msg = b"SRV:Received non-MSG"
         clientsocket.send(msg)
