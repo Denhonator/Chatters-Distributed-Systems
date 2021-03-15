@@ -31,6 +31,9 @@ def listen_TCP_clients(connected_client, ip_address):
                 print("client {} disconnected".format(connected_client))
                 connected_client.send("FAIL".encode())
 
+            if not "MSG" in message:
+                print("invalid message")
+                connected_client.send("INVALID".encode())
 
             else:
                 print("sending messages to other servers and clients as well...")
