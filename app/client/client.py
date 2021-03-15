@@ -39,18 +39,17 @@ def Connect(address):
                 while not disconnect:
                     sendmsg = "MSG:" + " {}: ".format(nick) + input("> ")
 
-
                     """ EVALUATION OF DIFFERENT CASES"""
                     if "spam" in sendmsg:
                         for i in range(0,50000):
-                            msg = "{}".format(i)
-                            s.send(msg.encode('utf-8'))
+                            sendmsg = "MSG: {}".format(i)
+                            s.send(sendmsg.encode('utf-8'))
 
                     elif "payload" in sendmsg:
                         msg = ""
                         for i in range(1,40000):
-                            msg +="{}".format(i)
-                        s.send(msg.encode())
+                            sendmsg +="{}".format(i)
+                        s.send(sendmsg.encode())
 
 
 
