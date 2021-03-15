@@ -18,11 +18,12 @@ def listen_to_server(socket,addr):
             print(msg[4:])      # Display received message
         elif "FAIL" in msg:
             disconnect = True
-        else:
-            print(msg)          # Non-MSG
+        #else:
+            #print(msg)          # Non-MSG
 
 def Connect(address):
     global disconnect
+    global nick
 
     try:
         connected = False
@@ -36,19 +37,19 @@ def Connect(address):
                 connected = True
                 _thread.start_new_thread(listen_to_server, (s, address))
                 while not disconnect:
-                    sendmsg = "MSG:" + input("> ")
+                    sendmsg = "MSG:" + " {}: ".format(nick) + input("> ")
 
 
                     """ EVALUATION OF DIFFERENT CASES"""
                     if "spam" in sendmsg:
-                        for i in range(0,1000):
+                        for i in range(0,50000):
                             msg = "{}".format(i)
                             s.send(msg.encode('utf-8'))
 
                     elif "payload" in sendmsg:
                         msg = ""
                         for i in range(1,40000):
-                            msg += "{}".format(i)
+                            msg +="{}".format(i)
                         s.send(msg.encode())
 
 
@@ -76,5 +77,10 @@ def Connect(address):
     s.close()
 
 
+#MAIN
+try:
+    nick = sys.argv[2]
+except:
+    nick = "anon"
 address = ("localhost", int(sys.argv[1]))
 Connect(address)
