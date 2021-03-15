@@ -110,3 +110,21 @@ def is_new_server_needed():
 def remove_client(connected_client):
     if connected_client in connected_clients:
         connected_clients.remove(connected_client)
+
+
+def castMessageToClients(message):
+    global connected_clients
+    print("sending message to other clients")
+    for c in connected_clients:
+        print("client :")
+        try:
+
+            c.send(message.encode())
+
+        except Exception as e:
+
+            print("invalid client")
+            continue
+
+    print("DONE")
+    print("Waiting for new connections...")

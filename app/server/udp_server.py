@@ -1,17 +1,21 @@
 import socketserver
 import threading
-
-
+from app.server import server
 
 class MyUDPRequestHandler(socketserver.DatagramRequestHandler):
 
     def handle(self):
 
         print("UDP message from: {}".format(self.client_address))
-        
 
         # Message received from another server
-        datagram = str(self.rfile.readline().strip())
+        datagram = self.rfile.readline().strip().decode('utf-8')
+
+        print(datagram)
 
         print(threading.current_thread().name)
-        #self.wfile.write("Message from Server! Hello Client".encode())
+
+
+        #send to server clients
+        server.castMessageToClients(datagram)
+        
