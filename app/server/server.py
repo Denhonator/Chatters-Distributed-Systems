@@ -19,6 +19,7 @@ def listen_TCP_clients(connected_client, ip_address):
             print("A message: '{}' received from {}".format(message, ip_address))
 
             if not is_client:
+                # Add client to client list and check if new server is needed
                 connected_clients.append(connected_client)
                 response, new_server = is_new_server_needed()
                 is_client = True
@@ -28,10 +29,12 @@ def listen_TCP_clients(connected_client, ip_address):
                 connected_client.send( new_server.encode() ) #respond client with an id of a server
 
             if "fail" in message:
+                #Simulate client fail and disconnetction
                 print("client {} disconnected".format(connected_client))
                 connected_client.send("FAIL".encode())
 
             if not "MSG" in message:
+                #No MSG identifier in message
                 print("invalid message")
                 connected_client.send("INVALID".encode())
 
@@ -87,6 +90,8 @@ def create_TCP_server():
     return TCP_socket
 
 
+""" Server to Server Communication"""
+
 def send_UDP_message(message):
     #UDP_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     for server in models.get_servers():
@@ -113,15 +118,23 @@ def update_Server(serverString):
         models.session.add(Server(server[2], server[1]))
 
 def update_Message(messageString):
-    message = messageString.split(":")
-    if not models.session.query(Message).filter_by(serverID = message[1], timestamp = message[2]):
-        models.session.add(Message(
-        serverID = message[1],
-        timestamp = message[2],
-        message = message[3],
-        user = message[4]))
+
+    try:
+        message = messageString.split(":")
+        if not models.session.query(Message).filter_by(serverID = message[1], timestamp = message[2]):
+            models.session.add(Message(
+            serverID = message[1],
+            timestamp = message[2],
+            message = message[3],
+            user = message[4]))
+    except Exception as e:
+        print("Error updating message: {}".format(messageString))
 
 
+
+
+
+""" Server Check, Client Removal and message casting"""
 
 def is_new_server_needed():
     if len(connected_clients) % 2 == 0:
@@ -143,10 +156,7 @@ def remove_client(connected_client):
     if connected_client in connected_clients:
         connected_clients.remove(connected_client)
 
-
-
-
-
+#Send recieved UDP message to clients
 def castMessageToClients(message):
     global connected_clients
     print("sending message to other clients")
