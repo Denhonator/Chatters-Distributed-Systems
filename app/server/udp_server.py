@@ -11,11 +11,13 @@ class MyUDPRequestHandler(socketserver.DatagramRequestHandler):
         # Message received from another server
         datagram = self.rfile.readline().strip().decode('utf-8')
 
-        print(datagram)
+        if "MSG"  in datagram:
+            #send to server clients
+            server.castMessageToClients(datagram)
+        elif "SERVER" in datagram:
+            #Updates for server list
+            server.update_Server(datagram)
+        elif "DBM" in datagram:
+            server.update_Message(datagram)
 
-        print(threading.current_thread().name)
-
-
-        #send to server clients
-        server.castMessageToClients(datagram)
-        
+        #print(threading.current_thread().name)

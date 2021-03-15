@@ -90,6 +90,35 @@ def send_UDP_message(message):
         if int(server.id) != constants.UDP_PORT:
             UDP_socket.sendto(message, (constants.UDP_IP, int(server.id)))
 
+def send_Database():
+    buf = 1024
+    print("sending database items")
+    for server in models.get_servers():
+        if int(server.id) != constants.UDP_PORT:
+            #send servers
+            for s in models.get_servers():
+                data = "SERVER:{}:{}".format(s.address, s.id) # Format SERVER:IP:PORT
+                UDP_socket.sendto(data.encode(), (constants.UDP_IP, int(server.id)))
+            #send messages
+            for m in models.get_messages():
+                data = "DBM:{}:{}:{}:{}".format(m.serverID, m.timestamp, m.message, m.user)
+                UDP_socket.sendto(data.encode(), (constants.UDP_IP, int(server.id)))
+
+def update_Server(serverString):
+    server = serverString.split(":")
+    if not models.session.query(Server).filter_by(id = server[2], address = server[1]):
+        models.session.add(Server(server[2], server[1]))
+
+def update_Message(messageString):
+    message = messageString.split(":")
+    if not models.session.query(Message).filter_by(serverID = message[1], timestamp = message[2]):
+        models.session.add(Message(
+        serverID = message[1],
+        timestamp = message[2],
+        message = message[3],
+        user = message[4]))
+
+
 
 def is_new_server_needed():
     if len(connected_clients) % 2 == 0:
@@ -112,6 +141,9 @@ def remove_client(connected_client):
         connected_clients.remove(connected_client)
 
 
+
+
+
 def castMessageToClients(message):
     global connected_clients
     print("sending message to other clients")
@@ -125,6 +157,3 @@ def castMessageToClients(message):
 
             print("invalid client")
             continue
-
-    print("DONE")
-    print("Waiting for new connections...")

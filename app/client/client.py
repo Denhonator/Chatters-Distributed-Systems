@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+import sys
 import socket
 import time
 import _thread
@@ -37,8 +37,25 @@ def Connect(address):
                 _thread.start_new_thread(listen_to_server, (s, address))
                 while not disconnect:
                     sendmsg = "MSG:" + input("> ")
-                    s.send(sendmsg.encode('utf-8'))
-                    time.sleep(0.5)
+
+
+                    """ EVALUATION OF DIFFERENT CASES"""
+                    if "spam" in sendmsg:
+                        for i in range(0,1000):
+                            msg = "{}".format(i)
+                            s.send(msg.encode('utf-8'))
+
+                    elif "payload" in sendmsg:
+                        msg = ""
+                        for i in range(1,40000):
+                            msg += "{}".format(i)
+                        s.send(msg.encode())
+
+
+
+                    else:
+                        s.send(sendmsg.encode('utf-8'))
+                        time.sleep(0.5)
             elif "CHANGE" in reply:
                 #"CHANGE:ADDRESS:PORT"
 
@@ -59,5 +76,5 @@ def Connect(address):
     s.close()
 
 
-address = ("localhost", 7500)
+address = ("localhost", int(sys.argv[1]))
 Connect(address)
