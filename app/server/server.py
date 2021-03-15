@@ -24,24 +24,50 @@ def listen_TCP_clients(connected_client, ip_address):
                 is_client = True
 
             if response:
-                print("Too much traffic, switch to {}", format(new_server))
+                print("Too much traffic, {}",format(new_server))
                 connected_client.send( new_server.encode() ) #respond client with an id of a server
-                
+
+            if "fail" in message:
+                print("client {} disconnected".format(connected_client))
+                connected_client.send("FAIL".encode())
+
+
             else:
-                print("sending messages to other servers as well...")
+                print("sending messages to other servers and clients as well...")
                 send_UDP_message(message.encode())
                 models.save_new_message(constants.TCP_PORT, str(message), str(connected_client))
-                message = b"OK"
-                connected_client.send( message ) # Send OK, so client can continue spamming
+                reply = b"OK"
+                connected_client.send(reply) # Send OK, so client can continue spamming
+
+
+                #send msg to own clients except sendee
+                print("sending message to other clients")
+                for c in connected_clients:
+                    print("client :")
+                    try:
+                        if c != connected_client:
+                            c.send(message.encode())
+                        else:
+                            print("self")
+                    except Exception as e:
+
+                        print("invalid client")
+                        continue
 
                 print("DONE")
                 print("Waiting for new connections...")
 
+
+
         except BrokenPipeError as e:
+            raise e
             print(e)
+            break
 
         except Exception as e:
+            raise e
             print(e)
+            break
 
 
 def listen_UDP_clients(UDP_server):
@@ -70,15 +96,17 @@ def is_new_server_needed():
         servers = models.get_servers()
         number_of_servers = len(servers)
         random_number = randint(0, number_of_servers - 1)
-        random_server = servers[random_number].id
-        return True, str(random_server)
+        random_server_ip = servers[random_number].address
+        random_server_port = servers[random_number].id
+
+        msg = "CHANGE:{}:{}".format(random_server_ip, random_server_port)
+
+        return True, msg
     else:
-        return False, "0000"
+        return False, b"OK"
 
 
 # Remove a client from the list
 def remove_client(connected_client):
     if connected_client in connected_clients:
         connected_clients.remove(connected_client)
-
-

@@ -40,12 +40,12 @@ if __name__ == "__main__":
             TCP_connection, ip_address = TCP_socket.accept()
             connected_clients.append(TCP_connection)
             print( "New connection: {}".format(ip_address))
-            _thread.start_new_thread(server.listen_TCP_clients, (TCP_connection, ip_address))            
+            _thread.start_new_thread(server.listen_TCP_clients, (TCP_connection, ip_address))
 
         except KeyboardInterrupt as e:
                 print("Server stopped by user")
                 break
-        
+
         except BrokenPipeError as e:
             print("Client disconnected")
 
