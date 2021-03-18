@@ -78,8 +78,8 @@ def Connect(address):
 
 #MAIN
 try:
-    nick = sys.argv[3]
+    nick = input("Enter nick: ").strip()
 except:
     nick = "anon"
-address = (sys.argv[1], int(sys.argv[2]))
+address = (input("Enter address: ").strip(), int(input("Enter port: ")))
 Connect(address)
