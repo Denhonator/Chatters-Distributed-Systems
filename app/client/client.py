@@ -78,8 +78,8 @@ def Connect(address):
 
 #MAIN
 try:
-    nick = sys.argv[2]
+    nick = sys.argv[3]
 except:
     nick = "anon"
-address = ("localhost", int(sys.argv[1]))
+address = (sys.argv[1], int(sys.argv[2]))
 Connect(address)
