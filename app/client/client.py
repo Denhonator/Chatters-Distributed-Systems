@@ -33,6 +33,7 @@ def Connect(address):
             print("Connected!")
             s.send(b"MSG:HELLO")
             reply = s.recv(1024).decode('utf-8')    # Server should confirm success
+            print(reply)
             if "OK" in reply:
                 connected = True
                 _thread.start_new_thread(listen_to_server, (s, address))
@@ -67,6 +68,7 @@ def Connect(address):
                 #TODO: Automatically attempt connection to suggested server
             else:
                 print("Server was not OK with the message")
+                time.sleep(0.5)
 
     except Exception as e:
         print(e)

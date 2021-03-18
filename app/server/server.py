@@ -96,7 +96,7 @@ def send_UDP_message(message):
     #UDP_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     for server in models.get_servers():
         if int(server.id) != constants.UDP_PORT:
-            UDP_socket.sendto(message, (constants.UDP_IP, int(server.id)))
+            UDP_socket.sendto(message, (server.address, int(server.id)))
 
 def send_Database():
     buf = 1024
