@@ -4,7 +4,7 @@ import socketserver
 from random import randint
 from database import models
 import constants
-
+import sys
 
 connected_clients = []
 UDP_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -95,7 +95,7 @@ def create_TCP_server():
 def send_UDP_message(message):
     #UDP_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     for server in models.get_servers():
-        if int(server.id) != constants.UDP_PORT:
+        if server.id != sys.argv[2] or server.address != sys.argv[1]:
             UDP_socket.sendto(message, (server.address, int(server.id)))
 
 def send_Database():
