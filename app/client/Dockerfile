@@ -2,6 +2,12 @@ FROM python:3.9.2-alpine3.13
 
 WORKDIR /app
 
+EXPOSE 7500
+EXPOSE 7501
+EXPOSE 7502
+EXPOSE 7503
+
 COPY . .
+
 
 ENTRYPOINT ["python3", "client.py"]
