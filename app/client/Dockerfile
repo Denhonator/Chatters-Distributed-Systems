@@ -1,4 +1,6 @@
-WORKDIR /usr/src/app
+FROM python:3.9.2-alpine3.13
+
+WORKDIR /app
+
 COPY . .
 ENTRYPOINT ["python3", "client.py"]
-

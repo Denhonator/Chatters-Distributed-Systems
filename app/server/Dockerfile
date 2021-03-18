@@ -1,6 +1,11 @@
 FROM python:3.9.2-alpine3.13
 
 WORKDIR /app
-COPY . .
-ENTRYPOINT ["python3", "client.py"]
 
+COPY requirements.txt requirements.txt
+
+RUN pip3 install -r requirements.txt
+
+COPY . .
+
+ENTRYPOINT ["python3", "main.py"]
