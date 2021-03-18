@@ -1,8 +1,8 @@
 import socket
 import _thread
 import socketserver
-from app.server.udp_server import MyUDPRequestHandler
-from app.server import udp_server, server
+import udp_server, server
+from udp_server import MyUDPRequestHandler
 import constants
 
 connected_clients = []

@@ -1,6 +1,6 @@
 import socketserver
 import threading
-from app.server import server
+import server
 
 class MyUDPRequestHandler(socketserver.DatagramRequestHandler):
 

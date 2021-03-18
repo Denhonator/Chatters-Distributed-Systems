@@ -2,7 +2,7 @@ import socket
 import _thread
 import socketserver
 from random import randint
-from app.database import models
+from database import models
 import constants
 
 
