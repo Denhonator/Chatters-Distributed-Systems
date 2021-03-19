@@ -5,4 +5,4 @@ WORKDIR /app
 COPY . .
 
 
-ENTRYPOINT ["python3", "client.py"]
+ENTRYPOINT ["python3", "-u", "client.py"]
