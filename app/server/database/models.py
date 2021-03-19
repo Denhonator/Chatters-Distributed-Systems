@@ -64,3 +64,11 @@ def save_new_message(serverID, message, user):
         print(e)
     finally:
         session.close()
+
+def save_server(serverID, addr):
+    try:
+        new_server = Server(id = serverID, address = addr)
+        session.add(new_server)
+        session.commit()
+    except Exception as e:
+        print(e)
