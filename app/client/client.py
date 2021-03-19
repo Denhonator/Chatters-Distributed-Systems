@@ -3,8 +3,10 @@ import sys
 import socket
 import time
 import _thread
+import threading
 
 disconnect = False
+consoleLock = threading.Lock()
 
 def listen_to_server(socket,addr):
     global disconnect
@@ -15,7 +17,9 @@ def listen_to_server(socket,addr):
             print(e)
             break
         if msg[:3] == "MSG":
-            print(msg[4:])      # Display received message
+            consoleLock.acquire()
+            print(msg[4:])
+            consoleLock.release()    # Display received message
         elif "FAIL" in msg:
             disconnect = True
         #else:
