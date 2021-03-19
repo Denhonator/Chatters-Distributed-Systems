@@ -5,6 +5,7 @@ from random import randint
 from database import models
 import constants
 import sys
+import time
 
 connected_clients = []
 connAttempts = 0
@@ -89,7 +90,6 @@ def create_TCP_server():
     TCP_socket.listen(constants.BACKLOG)
     return TCP_socket
 
-
 """ Server to Server Communication"""
 
 def send_UDP_message(message):
@@ -100,27 +100,27 @@ def send_UDP_message(message):
 
 def send_Database():
 
-    while true:
+    while True:
         buf = 1024
         print("sending database items")
         for server in models.get_servers():
-            if int(server.id) != constants.UDP_PORT:
+            if server.id != sys.argv[2] or server.address != sys.argv[1]:
                 #send servers
                 for s in models.get_servers():
                     data = "SERVER:{}:{}".format(s.address, s.id) # Format SERVER:IP:PORT
-                    UDP_socket.sendto(data.encode(), (constants.UDP_IP, int(server.id)))
-                    sleep(1)
+                    UDP_socket.sendto(data.encode(), (server.address, int(server.id)))
+                    time.sleep(1)
                 #send messages
                 for m in models.get_messages():
                     data = "DBM:{}:{}:{}:{}".format(m.serverID, m.timestamp, m.message, m.user)
-                    UDP_socket.sendto(data.encode(), (constants.UDP_IP, int(server.id)))
-                    sleep(1)
+                    UDP_socket.sendto(data.encode(), (server.address, int(server.id)))
+                    time.sleep(1)
 
 
 
 def update_Server(serverString):
     server = serverString.split(":")
-    if not models.session.query(Server).filter_by(id = server[2], address = server[1]):
+    if not models.Server.query.filter_by(id = server[2], address = server[1]):
         models.session.add(Server(server[2], server[1]))
 
 def update_Message(messageString):
