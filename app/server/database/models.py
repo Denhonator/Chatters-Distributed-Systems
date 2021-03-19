@@ -4,7 +4,7 @@ from sqlalchemy import Column, String, Integer, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import select
 from sqlalchemy import exc
-import datetime
+from datetime import datetime
 import os.path
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -17,7 +17,7 @@ session = scoped_session(sessionmaker(bind=engine))
 class Message(Base):
     __tablename__ = 'messages'
     serverID = Column(String, primary_key=True)
-    timestamp = Column(DateTime, primary_key=True, default = datetime.datetime.utcnow)
+    timestamp = Column(DateTime, primary_key=True, default = datetime.utcnow)
     message = Column(String, nullable = False)
     user = Column(String, nullable = False)
 
@@ -57,7 +57,7 @@ def save_new_message(sID, mes, usr, ts=None):
         new_message = Message(serverID=sID, message=mes, user=usr)
         if ts:
             print(ts)
-            new_message.timestamp = time.strptime(ts,'%m/%d/%y %H:%M:%S' )
+            new_message.timestamp = datetime.strptime(ts,'%Y-%m-%d %H:%M:%S.%f' )
         session.add(new_message)
         session.commit()
     except exc.IntegrityError as e:

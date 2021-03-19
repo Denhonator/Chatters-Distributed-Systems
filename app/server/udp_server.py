@@ -19,7 +19,7 @@ class MyUDPRequestHandler(socketserver.DatagramRequestHandler):
             #Updates for server list
             server.update_Server(datagram)
 
-        elif datagram[:3] = "DBM"
+        elif datagram[:3] == "DBM":
             server.update_Message(datagram)
 
 

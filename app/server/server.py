@@ -114,11 +114,8 @@ def send_Database():
 
             #send messages
             for m in models.get_messages():
-                data = "DBM:{}:{}:{}:{}".format(m.serverID, m.timestamp, m.message, m.user)
+                data = "DBM*{}*{}*{}*{}".format(m.serverID, m.user, m.timestamp, m.message)
                 UDP_socket.sendto(data.encode(), (server.address, int(server.id)))
-
-
-
 
 def update_Server(serverString):
     server = serverString.split(":")
@@ -127,8 +124,8 @@ def update_Server(serverString):
 def update_Message(messageString):
 
     try:
-        message = messageString.split(":")
-        models.save_new_message(message[1], message[3], message[4], message[2])
+        message = messageString.split("*", 4)
+        models.save_new_message(message[1], message[4], message[2], message[3])
 
     except Exception as e:
         print("Error updating message: {}".format(messageString))
