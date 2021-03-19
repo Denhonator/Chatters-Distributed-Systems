@@ -12,14 +12,14 @@ class MyUDPRequestHandler(socketserver.DatagramRequestHandler):
         datagram = self.rfile.readline().strip().decode('utf-8')
 
 
-        if "MSG" in datagram and not "DBM" in datagram:
+        if datagram[:3] == "MSG":
             #send to server clients
             server.castMessageToClients(datagram)
         elif "SERVER" in datagram:
             #Updates for server list
             server.update_Server(datagram)
 
-        elif "DBM" in datagram:
+        elif datagram[:3] = "DBM"
             server.update_Message(datagram)
 
 
