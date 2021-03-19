@@ -34,7 +34,7 @@ if __name__ == "__main__":
         raise
 
     #create database updater
-    _thread.start_new_thread(server.send_Database())
+    #_thread.start_new_thread(server.send_Database())
 
 
     # Main loop for listening new connections

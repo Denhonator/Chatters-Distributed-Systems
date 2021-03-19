@@ -120,24 +120,16 @@ def send_Database():
 
 def update_Server(serverString):
     server = serverString.split(":")
-    if not models.Server.query.filter_by(id = server[2], address = server[1]):
-        models.session.add(Server(server[2], server[1]))
+    models.save_server(server[2], server[1])
 
 def update_Message(messageString):
 
     try:
         message = messageString.split(":")
-        if not models.session.query(Message).filter_by(serverID = message[1], timestamp = message[2]):
-            models.session.add(Message(
-            serverID = message[1],
-            timestamp = message[2],
-            message = message[3],
-            user = message[4]))
+        models.save_new_message(message[1], message[3], message[4], message[2])
+
     except Exception as e:
         print("Error updating message: {}".format(messageString))
-
-
-
 
 """ Server Check, Client Removal and message casting"""
 

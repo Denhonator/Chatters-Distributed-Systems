@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import Column, String, Integer, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import select
+from sqlalchemy import exc
 import datetime
 import os.path
 
@@ -35,9 +36,6 @@ class Server(Base):
         self.id = id
         self.address = address
 
-
-
-
 def get_messages():
     try:
         messages = session.query(Message).all()
@@ -54,12 +52,16 @@ def get_servers():
         print(e)
         print("couldn't get servers")
 
-def save_new_message(serverID, message, user):
+def save_new_message(sID, mes, usr, ts=None):
     try:
-        new_message = Message(serverID="serverID", message="message", user="user")
+        new_message = Message(serverID=sID, message=mes, user=usr)
+        if ts:
+            print(ts)
+            #new_message.timestamp = time.strptime(ts, 
         session.add(new_message)
         session.commit()
-
+    except exc.IntegrityError as e:
+        pass
     except Exception as e:
         print(e)
     finally:
@@ -70,5 +72,7 @@ def save_server(serverID, addr):
         new_server = Server(id = serverID, address = addr)
         session.add(new_server)
         session.commit()
+    except exc.IntegrityError as e:
+        pass
     except Exception as e:
         print(e)
