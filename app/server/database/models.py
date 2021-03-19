@@ -70,3 +70,5 @@ def save_server(serverID, addr):
         new_server = Server(id = serverID, address = addr)
         session.add(new_server)
         session.commit()
+    except Exception as e:
+        print(e)
