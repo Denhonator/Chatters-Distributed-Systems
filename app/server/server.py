@@ -99,18 +99,24 @@ def send_UDP_message(message):
             UDP_socket.sendto(message, (server.address, int(server.id)))
 
 def send_Database():
-    buf = 1024
-    print("sending database items")
-    for server in models.get_servers():
-        if int(server.id) != constants.UDP_PORT:
-            #send servers
-            for s in models.get_servers():
-                data = "SERVER:{}:{}".format(s.address, s.id) # Format SERVER:IP:PORT
-                UDP_socket.sendto(data.encode(), (constants.UDP_IP, int(server.id)))
-            #send messages
-            for m in models.get_messages():
-                data = "DBM:{}:{}:{}:{}".format(m.serverID, m.timestamp, m.message, m.user)
-                UDP_socket.sendto(data.encode(), (constants.UDP_IP, int(server.id)))
+
+    while true:
+        buf = 1024
+        print("sending database items")
+        for server in models.get_servers():
+            if int(server.id) != constants.UDP_PORT:
+                #send servers
+                for s in models.get_servers():
+                    data = "SERVER:{}:{}".format(s.address, s.id) # Format SERVER:IP:PORT
+                    UDP_socket.sendto(data.encode(), (constants.UDP_IP, int(server.id)))
+                    sleep(1)
+                #send messages
+                for m in models.get_messages():
+                    data = "DBM:{}:{}:{}:{}".format(m.serverID, m.timestamp, m.message, m.user)
+                    UDP_socket.sendto(data.encode(), (constants.UDP_IP, int(server.id)))
+                    sleep(1)
+
+
 
 def update_Server(serverString):
     server = serverString.split(":")
@@ -129,7 +135,6 @@ def update_Message(messageString):
             user = message[4]))
     except Exception as e:
         print("Error updating message: {}".format(messageString))
-
 
 
 
