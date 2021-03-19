@@ -57,7 +57,7 @@ def save_new_message(sID, mes, usr, ts=None):
         new_message = Message(serverID=sID, message=mes, user=usr)
         if ts:
             print(ts)
-            #new_message.timestamp = time.strptime(ts, 
+            new_message.timestamp = time.strptime(ts,'%m/%d/%y %H:%M:%S' )
         session.add(new_message)
         session.commit()
     except exc.IntegrityError as e:

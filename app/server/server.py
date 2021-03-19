@@ -65,6 +65,8 @@ def listen_TCP_clients(connected_client, ip_address):
 
                 print("DONE")
                 print("Waiting for new connections...")
+                #Update database for all
+                send_Database()
 
         except BrokenPipeError as e:
             raise e
@@ -100,21 +102,21 @@ def send_UDP_message(message):
 
 def send_Database():
 
-    while True:
-        buf = 1024
-        print("sending database items")
-        for server in models.get_servers():
-            if server.id != sys.argv[2] or server.address != sys.argv[1]:
-                #send servers
-                for s in models.get_servers():
-                    data = "SERVER:{}:{}".format(s.address, s.id) # Format SERVER:IP:PORT
-                    UDP_socket.sendto(data.encode(), (server.address, int(server.id)))
-                    time.sleep(1)
-                #send messages
-                for m in models.get_messages():
-                    data = "DBM:{}:{}:{}:{}".format(m.serverID, m.timestamp, m.message, m.user)
-                    UDP_socket.sendto(data.encode(), (server.address, int(server.id)))
-                    time.sleep(1)
+
+    buf = 1024
+    print("sending database items")
+    for server in models.get_servers():
+        if server.id != sys.argv[2] or server.address != sys.argv[1]:
+            #send servers
+            for s in models.get_servers():
+                data = "SERVER:{}:{}".format(s.address, s.id) # Format SERVER:IP:PORT
+                UDP_socket.sendto(data.encode(), (server.address, int(server.id)))
+
+            #send messages
+            for m in models.get_messages():
+                data = "DBM:{}:{}:{}:{}".format(m.serverID, m.timestamp, m.message, m.user)
+                UDP_socket.sendto(data.encode(), (server.address, int(server.id)))
+
 
 
 
