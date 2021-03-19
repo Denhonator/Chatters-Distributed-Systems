@@ -7,33 +7,35 @@ import constants
 import sys
 
 connected_clients = []
+connAttempts = 0
 UDP_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
 
 def listen_TCP_clients(connected_client, ip_address):
     is_client = False
+    discUser = False
+    response, new_server = is_new_server_needed()
 
-    while True:
+    while not discUser:
         try:
             message = connected_client.recv(constants.BUFFER_SIZE).decode('utf-8')
             print("A message: '{}' received from {}".format(message, ip_address))
 
-            if not is_client:
+            if not is_client and not response:
                 # Add client to client list and check if new server is needed
                 connected_clients.append(connected_client)
-                response, new_server = is_new_server_needed()
                 is_client = True
 
             if response:
-                print("Too much traffic, {}",format(new_server))
+                print("Too much traffic, {}".format(new_server))
                 connected_client.send( new_server.encode() ) #respond client with an id of a server
+                discUser = True
 
-            if "fail" in message:
+            elif "fail" in message:
                 #Simulate client fail and disconnetction
                 print("client {} disconnected".format(connected_client))
                 connected_client.send("FAIL".encode())
 
-            if not "MSG" in message:
+            elif not "MSG" in message:
                 #No MSG identifier in message
                 print("invalid message")
                 connected_client.send("INVALID".encode())
@@ -62,8 +64,6 @@ def listen_TCP_clients(connected_client, ip_address):
 
                 print("DONE")
                 print("Waiting for new connections...")
-
-
 
         except BrokenPipeError as e:
             raise e
@@ -137,7 +137,9 @@ def update_Message(messageString):
 """ Server Check, Client Removal and message casting"""
 
 def is_new_server_needed():
-    if len(connected_clients) % 2 == 0:
+    global connAttempts
+    connAttempts += 1
+    if connAttempts % 2 == 0:
         servers = models.get_servers()
         number_of_servers = len(servers)
         random_number = randint(0, number_of_servers - 1)
@@ -148,7 +150,7 @@ def is_new_server_needed():
 
         return True, msg
     else:
-        return False, b"OK"
+        return False, "OK"
 
 
 # Remove a client from the list
