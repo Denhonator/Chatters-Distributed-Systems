@@ -10,63 +10,75 @@ import time
 connected_clients = []
 connAttempts = 0
 UDP_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+databaseSyncTime = 0
+databaseSyncPos = 0
 
 def listen_TCP_clients(connected_client, ip_address):
     is_client = False
     discUser = False
     response, new_server = is_new_server_needed()
+    timer = 0
+    global databaseSyncTime
 
     while not discUser:
         try:
-            message = connected_client.recv(constants.BUFFER_SIZE).decode('utf-8')
-            print("A message: '{}' received from {}".format(message, ip_address))
+            messages = connected_client.recv(constants.BUFFER_SIZE).decode('utf-8').split("\\r\\n")
+            for message in messages:
+                if "MSG: 0" in message:
+                    timer = time.time()
+                    print("Timing 50000 messages")
+                secondUpdate = False
+                timenow = time.time()
+                if timenow - databaseSyncTime > 1 or "49999" in message:
+                    databaseSyncTime = time.time()
+                    secondUpdate = True
+                    print("A message: '{}' received from {}".format(message, ip_address))
+                    if "49999" in message:
+                        print("Received 50000 messages in {}".format(time.time()-timer))
 
-            if not is_client and not response:
-                # Add client to client list and check if new server is needed
-                connected_clients.append(connected_client)
-                is_client = True
+                if not is_client and not response:
+                    # Add client to client list and check if new server is needed
+                    connected_clients.append(connected_client)
+                    is_client = True
 
-            if response:
-                print("Too much traffic, {}".format(new_server))
-                connected_client.send( new_server.encode() ) #respond client with an id of a server
-                discUser = True
+                if response:
+                    print("Too much traffic, {}".format(new_server))
+                    connected_client.send((new_server+"\r\n").encode() ) #respond client with an id of a server
+                    discUser = True
 
-            elif "fail" in message:
-                #Simulate client fail and disconnetction
-                print("client {} disconnected".format(connected_client))
-                connected_client.send("FAIL".encode())
+                elif "fail" in message:
+                    #Simulate client fail and disconnetction
+                    print("client {} disconnected".format(connected_client))
+                    connected_client.send("FAIL\r\n".encode())
 
-            elif not "MSG" in message:
-                #No MSG identifier in message
-                print("invalid message")
-                connected_client.send("INVALID".encode())
+                elif not "MSG" in message:
+                    #No MSG identifier in message
+                    print("invalid message")
+                    connected_client.send("INVALID\r\n".encode())
 
-            else:
-                print("sending messages to other servers and clients as well...")
-                send_UDP_message(message.encode())
-                models.save_new_message(constants.TCP_PORT, str(message), str(connected_client))
-                reply = b"OK"
-                connected_client.send(reply) # Send OK, so client can continue spamming
+                else:
+                    #print("sending messages to other servers and clients as well...")
+                    send_UDP_message((message+"\r\n").encode())
+                    models.save_new_message(constants.TCP_PORT, str(message), str(connected_client))
+                    reply = b"OK\r\n"
+                    connected_client.send(reply) # Send OK, so client can continue spamming
 
 
-                #send msg to own clients except sendee
-                print("sending message to other clients")
-                for c in connected_clients:
-                    print("client :")
-                    try:
-                        if c != connected_client:
-                            c.send(message.encode())
-                        else:
-                            print("self")
-                    except Exception as e:
+                    #send msg to own clients except sendee
+                    #print("sending message to other clients")
+                    for c in connected_clients:
+                        #print("client :")
+                        try:
+                            if c != connected_client:
+                                c.send((message+"\r\n").encode())
+                        except Exception as e:
+                            continue
 
-                        print("invalid client")
-                        continue
-
-                print("DONE")
-                print("Waiting for new connections...")
-                #Update database for all
-                send_Database()
+                    #print("DONE")
+                    #print("Waiting for new connections...")
+                    #Update database for all
+                    if secondUpdate:
+                        send_Database()
 
         except BrokenPipeError as e:
             raise e
@@ -101,21 +113,27 @@ def send_UDP_message(message):
             UDP_socket.sendto(message, (server.address, int(server.id)))
 
 def send_Database():
-
-
+    global databaseSyncPos
     buf = 1024
-    print("sending database items")
+    #print("sending database items")
     for server in models.get_servers():
         if server.id != sys.argv[2] or server.address != sys.argv[1]:
             #send servers
             for s in models.get_servers():
-                data = "SERVER:{}:{}".format(s.address, s.id) # Format SERVER:IP:PORT
+                data = "SERVER:{}:{}\r\n".format(s.address, s.id) # Format SERVER:IP:PORT
                 UDP_socket.sendto(data.encode(), (server.address, int(server.id)))
 
             #send messages
-            for m in models.get_messages():
-                data = "DBM*{}*{}*{}*{}".format(m.serverID, m.user, m.timestamp, m.message)
+            dbmessages = models.get_messages()
+            syncEndPos = min(databaseSyncPos + 50, len(dbmessages))
+            for i in range(databaseSyncPos, syncEndPos):
+                m = dbmessages[i]
+                data = "DBM*{}*{}*{}*{}\r\n".format(m.serverID, m.user, m.timestamp, m.message)
                 UDP_socket.sendto(data.encode(), (server.address, int(server.id)))
+            if syncEndPos-databaseSyncPos < 50:
+                databaseSyncPos = 0
+            else:
+                databaseSyncPos = syncEndPos
 
 def update_Server(serverString):
     server = serverString.split(":")
@@ -157,12 +175,12 @@ def remove_client(connected_client):
 #Send recieved UDP message to clients
 def castMessageToClients(message):
     global connected_clients
-    print("sending message to other clients")
+    #print("sending message to other clients")
     for c in connected_clients:
-        print("client :")
+        #print("client :")
         try:
 
-            c.send(message.encode())
+            c.send((message+"\r\n").encode())
 
         except Exception as e:
 
